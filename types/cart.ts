@@ -1,6 +1,5 @@
 export interface ICart {
     customerId: string,
-    status: number,
     products: productCart[]
 }
 

@@ -6,32 +6,33 @@ import { ICart, productCart } from "../types/cart";
 const Add = async (req: Request, res: Response) => {
     try {
 
-        const mergeProductsById = (existingProducts: productCart[], newProducts: productCart[]): productCart[] => {
-            const mergedProducts: productCart[] = [...existingProducts];
-
-            newProducts.forEach((product) => {
-                const existingProductIndex = mergedProducts.findIndex((p) => p.productId === product.productId);
-
-                if (existingProductIndex !== -1) {
-                    // Nếu sản phẩm đã tồn tại, thì gộp lại thông tin
-                    mergedProducts[existingProductIndex].quantity += product.quantity;
-                    // Bạn có thể thực hiện các bước gộp thông tin khác tùy ý
-                } else {
-                    // Nếu sản phẩm chưa tồn tại, thêm mới vào mảng gộp
-                    mergedProducts.push({ ...product });
-                }
-            });
-
-            return mergedProducts;
-        };
 
         const existingCart = await Cart.findOne({ customerId: req.body.customerId })
+        // const
 
         if (!existingCart) {
             const data = await Cart.create(req.body)
             res.json(errorFunction(false, 200, "Successfully", data))
         }
         else {
+            const mergeProductsById = (existingProducts: productCart[], newProducts: productCart[]): productCart[] => {
+                const mergedProducts: productCart[] = [...existingProducts];
+
+                newProducts.forEach((product) => {
+                    const existingProductIndex = mergedProducts.findIndex((p) => p.productId === product.productId);
+
+                    if (existingProductIndex !== -1) {
+                        // Nếu sản phẩm đã tồn tại, thì gộp lại thông tin
+                        mergedProducts[existingProductIndex].quantity += product.quantity;
+                        // Bạn có thể thực hiện các bước gộp thông tin khác tùy ý
+                    } else {
+                        // Nếu sản phẩm chưa tồn tại, thêm mới vào mảng gộp
+                        mergedProducts.push({ ...product });
+                    }
+                });
+
+                return mergedProducts;
+            };
             // Nếu giỏ hàng đã tồn tại, gộp các sản phẩm có cùng productId
             const updatedProducts = mergeProductsById(existingCart.products, req.body.products);
 

@@ -15,6 +15,6 @@ route.patch('/api/cart/update/:_id', cartController.Update)
 
 module.exports = route
 
-const OrderRoute = route
+const CartRoute = route
 
-export default OrderRoute
+export default CartRoute
