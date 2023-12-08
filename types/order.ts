@@ -8,7 +8,6 @@ export interface productOrder {
     productId: string,
     image: string,
     productName: string,
-    amount: number,
-    inputPrice: number,
+    quantity: number,
     exportPrice: number,
 }
