@@ -1,6 +1,7 @@
 import express from "express"
 import { productController } from "../controllers/product_controller"
 import cors from "cors"
+import { allowCrossDomain } from "../utils/corsMiddleware"
 
 const route = express.Router()
 const app = express()

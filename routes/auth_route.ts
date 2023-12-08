@@ -1,5 +1,6 @@
 import express from "express"
 import { authController } from "../controllers/auth_controller"
+import { allowCrossDomain } from "../utils/corsMiddleware"
 
 const route = express.Router()
 const app = express()
