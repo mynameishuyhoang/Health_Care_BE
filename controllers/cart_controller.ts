@@ -94,6 +94,35 @@ const Update = async (req: Request, res: Response) => {
     }
 }
 
+const Delete = async (req: Request, res: Response) => {
+    try {
+
+        const cart = await Cart.findOne({ customerId: req.params.customerId });
+
+        if (!cart) {
+            return res.status(400).json({ message: "Invalid" });
+        }
+
+        // Lấy productId muốn xoá từ request body
+        const productIdToRemove = req.body.productId;
+
+        // Sử dụng updateOne để xoá sản phẩm
+        await Cart.updateOne(
+            {
+                "customerId": req.params.customerId,
+                "products.productId": productIdToRemove
+            },
+            { $pull: { "products": { "productId": productIdToRemove } } }
+        );
+
+        res.json(errorFunction(false, 200, "Successfully", cart))
+    } catch (error) {
+        res.status(500).json({
+            message: "Something's wrong with system on server"
+        })
+    }
+}
+
 export const cartController = {
-    Add, GetA, GetAll, Update
+    Add, GetA, GetAll, Update, Delete
 }
