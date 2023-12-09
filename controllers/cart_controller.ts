@@ -55,6 +55,7 @@ const Add = async (req: Request, res: Response) => {
 const GetA = async (req: Request, res: Response) => {
     try {
         const data = await Cart.findOne({ customerId: req.params._id })
+        console.log(req.params._id);
 
         if (!data)
             return res.status(400).json({
@@ -97,25 +98,38 @@ const Update = async (req: Request, res: Response) => {
 const Delete = async (req: Request, res: Response) => {
     try {
 
-        const cart = await Cart.findOne({ customerId: req.params.customerId });
+        const existingCart = await Cart.findOne({ customerId: req.params._id })
+        console.log(req.params._id);
 
-        if (!cart) {
+        if (!existingCart) {
             return res.status(400).json({ message: "Invalid" });
         }
 
         // Lấy productId muốn xoá từ request body
         const productIdToRemove = req.body.productId;
 
+        console.log(req.body.productId);
+
+
+        const existingProductIndex = existingCart.products.findIndex(product => product.productId === productIdToRemove);
+
+        if (existingProductIndex === -1) {
+            return res.status(400).json({ message: "Product not found in the cart" });
+        }
+
         // Sử dụng updateOne để xoá sản phẩm
         await Cart.updateOne(
             {
-                "customerId": req.params.customerId,
+                "customerId": req.params._id,
                 "products.productId": productIdToRemove
             },
             { $pull: { "products": { "productId": productIdToRemove } } }
         );
 
-        res.json(errorFunction(false, 200, "Successfully", cart))
+        // Tìm lại giỏ hàng sau khi xoá sản phẩm
+        const updatedCart = await Cart.findOne({ customerId: req.params._id });
+
+        res.json(errorFunction(false, 200, "Successfully", updatedCart))
     } catch (error) {
         res.status(500).json({
             message: "Something's wrong with system on server"
