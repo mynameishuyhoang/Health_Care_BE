@@ -5,10 +5,7 @@ import { ICart, productCart } from "../types/cart";
 
 const Add = async (req: Request, res: Response) => {
     try {
-
-
         const existingCart = await Cart.findOne({ customerId: req.body.customerId })
-        // const
 
         if (!existingCart) {
             const data = await Cart.create(req.body)

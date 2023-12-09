@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import Product from "../models/product"
-const { MongoClient, ObjectID } = require('mongodb');
 
 const Add = async (req: Request, res: Response) => {
     try {
@@ -22,7 +21,30 @@ const Add = async (req: Request, res: Response) => {
 }
 const GetAll = async (req: Request, res: Response) => {
     try {
-        const data = await Product.find()
+        const { name, categoryId, pageSize, pageNumber } = req.query;
+
+        let query: any = {};
+
+        // Kiểm tra nếu có query parameter name, thêm điều kiện tìm kiếm theo tên sản phẩm
+        if (name) {
+            query.name = { $regex: new RegExp(name as string, 'i') }; // Sử dụng RegExp để tìm kiếm không phân biệt chữ hoa chữ thường
+        }
+
+        // Kiểm tra nếu có query parameter category, thêm điều kiện tìm kiếm theo danh mục sản phẩm
+        if (categoryId) {
+            query.categoryId = { $regex: new RegExp(categoryId as string, 'i') };
+        }
+
+        // Xử lý phân trang
+        const pageSizeInt = parseInt(pageSize as string, 10) || 8;
+        const pageNumberInt = parseInt(pageNumber as string, 10) || 1;
+
+        const skip = (pageNumberInt - 1) * pageSizeInt;
+
+        const data = await Product.find(query)
+            .skip(skip)
+            .limit(pageSizeInt);
+
         return res.status(200).json({
             message: "Successfully",
             data: data
