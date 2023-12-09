@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import Product from "../models/product"
 
 const Add = async (req: Request, res: Response) => {
@@ -138,6 +138,70 @@ const DeleteAll = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
+const getAllProducts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const {
+            pageSize = 12,
+            pageNumber = 1,
+            name = '',
+            categoryId = '',
+            orderByColumn,
+            orderByDirection = 'desc',
+        } = req.query
+        const filter = {
+            $and: [
+                {
+                    name: {
+                        $regex: name,
+                        $options: 'i',
+                    },
+                },
+                {
+                    categoryId: {
+                        $regex: categoryId,
+                        $options: 'i',
+                    },
+                },
+            ],
+        }
+        const filterProducts = await Product.find(filter)
+            .sort(`${orderByDirection === 'asc' ? '' : '-'}${orderByColumn}`)
+            .limit(pageSize as number * 1)
+            .skip((pageNumber as number - 1) * (pageSize as number))
+
+        const allProducts = await Product.find(filter)
+
+        let totalPage = 0
+        if (allProducts.length % (pageSize as number) === 0) {
+            totalPage = allProducts.length / (pageSize as number)
+        } else {
+            const cal = allProducts.length / (pageSize as number)
+            totalPage = parseInt((cal + 1) as any)
+        }
+
+        if (allProducts.length > 0) {
+            res.status(200).json({
+                totalPage: totalPage,
+                totalProducts: allProducts.length,
+                data:
+                    orderByDirection && orderByColumn
+                        ? filterProducts
+                        : filterProducts.reverse(),
+            })
+        } else {
+            res.status(200).json({
+                message: 'No results',
+                data: [],
+            })
+        }
+    } catch (error) {
+        console.log('error: ', error)
+        res.status(400).json({
+            message: 'Bad request',
+        })
+    }
+}
 export const productController = {
-    Add, GetA, GetAll, Update, Delete, DeleteAll
+    Add, GetA, GetAll, Update, Delete, DeleteAll, getAllProducts
 }

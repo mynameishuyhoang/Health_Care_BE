@@ -14,6 +14,7 @@ route.post('/api/product', productController.GetAll)
 route.put('/api/product/update/:_id', productController.Update)
 route.delete('/api/product/delete/:_id', productController.Delete)
 route.delete('/api/product/delete', productController.DeleteAll)
+route.post('/api/product/get', productController.getAllProducts)
 
 
 
