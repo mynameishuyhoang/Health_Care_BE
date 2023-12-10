@@ -92,7 +92,7 @@ const Update = async (req: Request, res: Response) => {
     }
 }
 
-const Delete = async (req: Request, res: Response) => {
+const DeleteProductInCart = async (req: Request, res: Response) => {
     try {
 
         const existingCart = await Cart.findOne({ customerId: req.params._id })
@@ -134,6 +134,19 @@ const Delete = async (req: Request, res: Response) => {
     }
 }
 
+const Delete = async (req: Request, res: Response) => {
+    try {
+        const cart = await Cart.findById(req.params._id)
+        if (!cart) return res.status(400).json({ message: "Invalid" })
+        else {
+            await Cart.findByIdAndDelete(req.params._id)
+            res.json(errorFunction(false, 200, 'Successfully'))
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Something's wrong with system on server" })
+    }
+}
+
 export const cartController = {
-    Add, GetA, GetAll, Update, Delete
+    Add, GetA, GetAll, Update, DeleteProductInCart, Delete
 }
