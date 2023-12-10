@@ -11,6 +11,7 @@ import OrderRoute from "./routes/order_route";
 import VoucherRoute from "./routes/voucher_route";
 import AuthoRoute from "./routes/auth_route";
 import CartRoute from "./routes/cart_route";
+import ShippRoute from "./routes/shipp_routr";
 
 const app = express();
 // const router = Router
@@ -48,3 +49,4 @@ app.use("", OrderRoute)
 app.use("", VoucherRoute)
 app.use("", AuthoRoute)
 app.use("", CartRoute)
+app.use("", ShippRoute)
