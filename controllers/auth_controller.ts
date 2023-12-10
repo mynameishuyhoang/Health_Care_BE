@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Customer from "../models/customer";
 import bcrypt from "bcrypt";
+import User from "../models/user";
 
 const Register = async (req: Request, res: Response) => {
     try {
@@ -76,6 +77,38 @@ const Login = async (req: Request, res: Response) => {
     }
 }
 
+const LoginDasboard = async (req: Request, res: Response) => {
+    try {
+        const user = await User.findOne({
+            useName: req.body.userName
+        })
+        if (!user) {
+            res.status(404).json({
+                message: "Wrong username or Username does not existed"
+            })
+        }
+        const password = bcrypt.compare(req.body.password, user.password)
+        if (!password) {
+            res.status(404).json({
+                message: "Wrong password"
+            })
+        }
+        else {
+            const { userName, password, name, isAdmin } = user;
+            res.status(200).json({
+                message: "Successfully",
+                _id: user._id,
+                name: name,
+                isAdmin: isAdmin
+            })
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: "Something's wrong with system on server"
+        })
+    }
+}
+
 export const authController = {
-    Register, Login
+    Register, Login, LoginDasboard
 }

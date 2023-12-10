@@ -9,6 +9,8 @@ app.use(allowCrossDomain)
 
 route.post('/api/register', authController.Register)
 route.post('/api/login', authController.Login)
+route.post('/api/dashboard/login', authController.LoginDasboard)
+
 
 
 module.exports = route
