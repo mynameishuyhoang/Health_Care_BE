@@ -11,7 +11,7 @@ import OrderRoute from "./routes/order_route";
 import VoucherRoute from "./routes/voucher_route";
 import AuthoRoute from "./routes/auth_route";
 import CartRoute from "./routes/cart_route";
-import ShippRoute from "./routes/shipp_routr";
+import ShippRoute from "./routes/shipp_route";
 
 const app = express();
 // const router = Router
