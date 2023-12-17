@@ -89,6 +89,87 @@ const Update = async (req: Request, res: Response) => {
         })
     }
 }
+
+
+const UpdateProductAfterBuy = async (req: Request, res: Response) => {
+    try {
+
+    } catch (error) {
+        return res.status(500).json({
+            message: "Something's wrong with system on server"
+        })
+    }
+}
+
+
+// const UpdateProductAmountById = async (product: any, res?: Response) => {
+//     console.log("product: ", product);
+//     console.log("res: ", res);
+
+
+//     try {
+//         const data = await Product.findById(product?.productId)
+//         console.log('data: ', data);
+
+//         if (!data) {
+//             return res?.status(400)?.json({
+//                 message: "Invalid"
+//             })
+//         }
+//         else {
+//             const updated = await data?.updateOne({
+//                 $set: {
+//                     amount: data.amount - product?.quantity
+//                 }
+//             })
+//             return res?.status(200)?.json({
+//                 message: "update amount",
+//                 updated,
+//             })
+//         }
+//     }
+//     catch (error) {
+//         return res?.status(500)?.json({
+//             message: "Something's wrong with system on server"
+//         })
+//     }
+// }
+
+const UpdateProductAmountById = async (product: any) => {
+    try {
+        const data = await Product.findById(product?.productId);
+
+        if (!data) {
+            throw new Error("Invalid");
+        } else {
+            const updated = await data?.updateOne({
+                $set: {
+                    amount: data.amount - product?.quantity,
+                },
+            });
+
+            return updated;
+        }
+    } catch (error) {
+        throw new Error("Something's wrong with the system on the server");
+    }
+};
+
+const CheckAmountProduct = async (product: any) => {
+    try {
+        const data = await Product.findById(product?.productId);
+
+        if (!data) {
+            throw new Error("Invalid");
+        } else {
+            if (product?.quantity > data?.amount) return true
+            else return false
+        }
+    } catch (error) {
+        throw new Error("Something's wrong with the system on the server");
+    }
+};
+
 const Delete = async (req: Request, res: Response) => {
     try {
         const data = await Product.findById(req.params._id)
@@ -203,5 +284,5 @@ const getAllProducts = async (req: Request, res: Response, next: NextFunction) =
     }
 }
 export const productController = {
-    Add, GetA, GetAll, Update, Delete, DeleteAll, getAllProducts
+    Add, GetA, GetAll, Update, Delete, DeleteAll, getAllProducts, UpdateProductAmountById
 }

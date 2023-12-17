@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
 import Cart from "../models/cart";
+import Product from "../models/product";
 import { errorFunction } from "../utils/errorFunction";
 import { ICart, productCart } from "../types/cart";
+import { IProduct } from "../types/product";
 
 const Add = async (req: Request, res: Response) => {
     try {
@@ -53,6 +55,34 @@ const GetA = async (req: Request, res: Response) => {
     try {
         const data = await Cart.findOne({ customerId: req.params._id })
         console.log(req.params._id);
+        const listProducts = data?.products
+        // console.log("listProducts: ", listProducts);
+
+        let products = []
+        // map to check amount by product from Product
+        const promiseCheckProduct = listProducts.map(async (pro: any, idx: number) => {
+            const product = await Product.findById(pro?.productId) as any;
+            if (pro.quantity > product?.amount) {
+                const checkProduct = [{
+                    ...listProducts[idx],
+                    isSoldOut: true,
+                    amount: product.amount
+                }]
+                return products = products.concat(checkProduct)
+            } else {
+
+                const checkProduct = [{
+                    ...listProducts[idx],
+                    isSoldOut: false,
+                    amount: product.amount
+                }]
+                return products = products.concat(checkProduct)
+            }
+        })
+        await Promise.all(promiseCheckProduct);
+
+        console.log("products: ", products);
+
 
         if (!data)
             return res.status(400).json({
@@ -60,7 +90,9 @@ const GetA = async (req: Request, res: Response) => {
             })
         else return res.status(200).json({
             message: "Successfully",
-            data: data
+            data: {
+                products: products
+            }
         })
     } catch (error) {
         res.status(500).json({
@@ -91,6 +123,44 @@ const Update = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Something's wrong with system on server" })
     }
 }
+
+const UpdateCart = async (req: Request, res: Response) => {
+    // customerId, productId, quantity
+    try {
+        const cartByCustomer = await Cart.findOne({ customerId: req.body.customerId })
+        const cartWillEdit = cartByCustomer?.products.filter((cart: any) => cart.productId === req.body.productId)
+        const cartEdited = {
+            ...cartWillEdit[0],
+            quantity: req.body.quantity
+        }
+        let listProductsInCart = [];
+        const listProductsUpdated = await cartByCustomer?.products?.map((cart: any) => {
+            if (cart?.productId !== req.body.productId) {
+                return listProductsInCart.concat([cart])
+            } else {
+                return listProductsInCart.concat([cartEdited])
+            }
+        })
+        await Promise.all(listProductsUpdated);
+
+        const listNewProdcutsUpdated = listProductsUpdated?.map((pro: any) => {
+            return pro[0]
+        })
+
+        if (!cartByCustomer) return res.status(400).json({ message: "Invalid" })
+        else {
+            const data = await cartByCustomer?.updateOne({
+                $set: {
+                    products: listNewProdcutsUpdated
+                }
+            })
+            res.status(200).json({ message: "Successfully", data: data })
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Something's wrong with system on server" })
+    }
+}
+
 
 const DeleteProductInCart = async (req: Request, res: Response) => {
     try {
@@ -148,5 +218,5 @@ const Delete = async (req: Request, res: Response) => {
 }
 
 export const cartController = {
-    Add, GetA, GetAll, Update, DeleteProductInCart, Delete
+    Add, GetA, GetAll, Update, DeleteProductInCart, Delete, UpdateCart
 }
