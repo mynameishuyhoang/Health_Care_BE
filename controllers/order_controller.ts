@@ -5,11 +5,11 @@ import { productController } from "./product_controller";
 const Add = async (req: Request, res: Response) => {
     try {
         const data = await Order.create(req.body)
-        const updatePromises = req.body?.products.map((element) =>
-            productController.UpdateProductAmountById(element)
-        );
+        // const updatePromises = req.body?.products.map((element) =>
+        //     productController.UpdateProductAmountById(element)
+        // );
 
-        await Promise.all(updatePromises);
+        // await Promise.all(updatePromises);
 
         res.status(200).json({
             message: "Successfully"
